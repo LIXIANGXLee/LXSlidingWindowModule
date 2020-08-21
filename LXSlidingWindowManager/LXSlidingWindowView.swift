@@ -80,9 +80,14 @@ public class LXSlidingWindowView: UIView {
     /// 刷新布局图片
     private lazy var updateBtn: UIButton = {
         let updateBtn = UIButton(type: .custom)
-        updateBtn.setImage(UIImage.image(light: UIImage.named("update_sliding_icon")!, dark: UIImage.named("update_sliding_icon")!), for: .normal)
         updateBtn.addTarget(self, action: #selector(updateSlidingUI), for: .touchUpInside)
         return updateBtn
+    }()
+    
+    private lazy var updateImgView: UIImageView = {
+        let updateImgView = UIImageView()
+        updateImgView.image = UIImage.image(light: UIImage.named("update_sliding_icon")!, dark: UIImage.named("update_sliding_icon")!)
+        return updateImgView
     }()
     
     // slidingView
@@ -152,6 +157,8 @@ extension LXSlidingWindowView {
         bgImgView.addSubview(endSubImgView)
         endSubImgView.addSubview(endSubSubImgView)
         bgImgView.addSubview(updateBtn)
+        updateBtn.addSubview(updateImgView)
+        
         /// 事件监听
         
         /// 滑动事件结束时的回调
@@ -159,7 +166,7 @@ extension LXSlidingWindowView {
            self?.startSubImgView.frame.origin.x = min((self?.bgImgView.frame.width ?? 0) - LXFit.fitFloat(52), max(0, (self?.originSlidingViewX ?? 0) + offSet))
             guard let rect1 = self?.endSubImgView.frame , let rect2 = self?.startSubImgView.frame else { return false }
             if  rect1.contains(rect2) { /// 包含
-                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1) {
+                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1.5) {
                     self?.callBack?(true)
                     self?.dismiss()
                 }
@@ -190,6 +197,7 @@ extension LXSlidingWindowView {
         bgImgView.frame = CGRect(x: LXFit.fitFloat(25), y: titleLabel.frame.maxY + LXFit.fitFloat(13), width: bgContentView.frame.width - LXFit.fitFloat(50), height: LXFit.fitFloat(139))
         slidingView.frame = CGRect(x: 0, y: bgImgView.frame.maxY + LXFit.fitFloat(15), width: bgContentView.frame.width, height: LXFit.fitFloat(50))
         updateBtn.frame = CGRect(x: LXFit.fitFloat(235), y: LXFit.fitFloat(103), width: LXFit.fitFloat(36), height: LXFit.fitFloat(36))
+        updateImgView.frame = CGRect(x: LXFit.fitFloat(10), y: LXFit.fitFloat(10), width: LXFit.fitFloat(16), height: LXFit.fitFloat(16))
 
         
          /// 刷新滑块UI

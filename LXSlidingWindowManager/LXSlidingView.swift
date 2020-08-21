@@ -95,42 +95,40 @@ extension LXSlidingView {
         normalSlidingView.frame = CGRect(x: LXFit.fitFloat(39), y: LXFit.fitFloat(8), width: self.frame.width - LXFit.fitFloat(79), height: LXFit.fitFloat(34))
         
         slidingTitleLabel.frame = CGRect(x: LXFit.fitFloat(39), y: normalSlidingView.frame.origin.y, width: self.frame.width - LXFit.fitFloat(79) - LXFit.fitFloat(22) , height: LXFit.fitFloat(34))
-        
         currentSlidingView.frame = CGRect(x: LXFit.fitFloat(39), y: normalSlidingView.frame.origin.y, width: LXFit.fitFloat(30), height: LXFit.fitFloat(34))
-
         slidingImgView.frame = CGRect(x: LXFit.fitFloat(30), y: 0, width: LXFit.fitFloat(50) , height: LXFit.fitFloat(50))
         
     }
     
-    
     /// 滑动事件处理
-       @objc private func panGesture(_ gesture: UIPanGestureRecognizer) {
-           
-           let point = gesture.translation(in: gesture.view)
+   @objc private func panGesture(_ gesture: UIPanGestureRecognizer) {
+       
+       let point = gesture.translation(in: gesture.view)
 
-        if gesture.state == .began{
-            originSlidingViewX = self.slidingImgView.frame.origin.x
-         }else if gesture.state == .changed {/// 开始滑动
-             
-            self.slidingImgView.frame.origin.x = min(max(LXFit.fitFloat(30), originSlidingViewX + point.x), self.frame.width - LXFit.fitFloat(87))
-            self.currentSlidingView.frame.size.width = self.slidingImgView.frame.midX - LXFit.fitFloat(39)
-            
+       if gesture.state == .began{
+          originSlidingViewX = self.slidingImgView.frame.origin.x
+       }else if gesture.state == .changed {/// 开始滑动
+         
+           self.slidingImgView.frame.origin.x = min(max(LXFit.fitFloat(30), originSlidingViewX + point.x), self.frame.width - LXFit.fitFloat(87))
+           self.currentSlidingView.frame.size.width = self.slidingImgView.frame.midX - LXFit.fitFloat(39)
+        
+           /// 事件回调
            self.changeCallBack?(point.x)
-            
-           }else { /// 结束 或者 取消滑动
+        
+       }else { /// 结束 或者 取消滑动
             let result = self.endCallBack?(point.x)
-                if let _ = result, result! { ///两张图片完全吻合时处理
-                    gesture.view?.isUserInteractionEnabled = false
-                    
-                    slidingImgView.image =                     UIImage.image(light: UIImage.named("sliding_icon_select")!, dark: UIImage.named("sliding_icon_select")!)
-                }else{
-                    UIView.animate(withDuration: 0.2) {
-                        self.slidingImgView.frame.origin.x = LXFit.fitFloat(39)
-                        self.currentSlidingView.frame.size.width = LXFit.fitFloat(30)
-                    }
-               }
+            if let _ = result, result! { ///两张图片完全吻合时处理
+                gesture.view?.isUserInteractionEnabled = false
+                
+                slidingImgView.image =                     UIImage.image(light: UIImage.named("sliding_icon_select")!, dark: UIImage.named("sliding_icon_select")!)
+            }else{
+                UIView.animate(withDuration: 0.2) {
+                    self.slidingImgView.frame.origin.x = LXFit.fitFloat(39)
+                    self.currentSlidingView.frame.size.width = LXFit.fitFloat(30)
+                }
            }
        }
+   }
 }
 
 //MARK: - public
