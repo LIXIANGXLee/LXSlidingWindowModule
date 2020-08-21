@@ -172,8 +172,10 @@ extension LXSlidingWindowView {
                 }
                 return true
             }else{
-                UIView.animate(withDuration: 0.2) {
+                UIView.animate(withDuration: 0.2, animations: {
                     self?.startSubImgView.frame.origin.x = self?.originSlidingViewX ?? 0
+                }) { (finish) in
+                    self?.updateSlidingUI()
                 }
                 return false
             }
