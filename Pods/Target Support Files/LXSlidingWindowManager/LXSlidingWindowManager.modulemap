@@ -1,0 +1,6 @@
+framework module LXSlidingWindowManager {
+  umbrella header "LXSlidingWindowManager-umbrella.h"
+
+  export *
+  module * { export * }
+}

@@ -1,0 +1,6 @@
+framework module Pods_LXSlidingWindowModule {
+  umbrella header "Pods-LXSlidingWindowModule-umbrella.h"
+
+  export *
+  module * { export * }
+}

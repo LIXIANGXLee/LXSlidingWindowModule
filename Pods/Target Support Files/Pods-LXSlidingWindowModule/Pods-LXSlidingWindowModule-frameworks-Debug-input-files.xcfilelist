@@ -1,0 +1,4 @@
+${PODS_ROOT}/Target Support Files/Pods-LXSlidingWindowModule/Pods-LXSlidingWindowModule-frameworks.sh
+${BUILT_PRODUCTS_DIR}/LXDarkModeManager/LXDarkModeManager.framework
+${BUILT_PRODUCTS_DIR}/LXFitManager/LXFitManager.framework
+${BUILT_PRODUCTS_DIR}/LXSlidingWindowManager/LXSlidingWindowManager.framework

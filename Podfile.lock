@@ -1,0 +1,27 @@
+PODS:
+  - LXDarkModeManager (1.3.0)
+  - LXFitManager (1.1.0)
+  - LXSlidingWindowManager (1.0.0):
+    - LXDarkModeManager
+    - LXFitManager
+
+DEPENDENCIES:
+  - LXSlidingWindowManager (from `./`)
+
+SPEC REPOS:
+  trunk:
+    - LXDarkModeManager
+    - LXFitManager
+
+EXTERNAL SOURCES:
+  LXSlidingWindowManager:
+    :path: "./"
+
+SPEC CHECKSUMS:
+  LXDarkModeManager: 6b40cca9ab71661b164adeb8bc2218fd67aac955
+  LXFitManager: d76fa8e60a899fccf87c66fe33e19479e1d64906
+  LXSlidingWindowManager: 9f33c7960f97066f00769da7cac057403ae7402f
+
+PODFILE CHECKSUM: e9054ef22c302d1773844e3366bb2c834c94932e
+
+COCOAPODS: 1.9.3
