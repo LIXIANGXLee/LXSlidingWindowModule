@@ -9,6 +9,7 @@
 import UIKit
 import LXFitManager
 import LXDarkModeManager
+import AVFoundation
 
 //MARK: - 事件声明
 public typealias LXSlidingWindowViewCallBack = ((Bool) -> ())
@@ -96,20 +97,6 @@ public class LXSlidingWindowView: UIView {
         return slidingView
     }()
     
-    /// 滑动时 保留原始位置
-    private var originSlidingViewX: CGFloat = 0
-    
-    /// 结束事件回调
-    public var callBack: LXSlidingWindowViewCallBack?
-    
-    /// 背景图片修改
-    public var bgImage: UIImage? {
-        didSet {
-            guard let bgImage = bgImage else { return }
-            bgImgView.image = bgImage
-        }
-    }
-    
     public init() {
         super.init(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
         
@@ -118,11 +105,31 @@ public class LXSlidingWindowView: UIView {
         
         /// 初始化UI
         setContentUI()
+        
+        /// 事件监听
+        setHandle()
+        
+        /// 设置尺寸
+        setAllFrame()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    /// 滑动时 保留原始位置
+   private var originSlidingViewX: CGFloat = 0
+   
+   /// 结束事件回调
+   public var callBack: LXSlidingWindowViewCallBack?
+   
+   /// 背景图片修改
+   public var bgImage: UIImage? {
+       didSet {
+           guard let bgImage = bgImage else { return }
+           bgImgView.image = bgImage
+       }
+   }
     
     /// 背景view颜色
     public var bgBackgroundColor: UIColor? {
@@ -141,6 +148,17 @@ public class LXSlidingWindowView: UIView {
         }
     }
     
+    ///背景viewY坐标
+    public var bgContentY: CGFloat? {
+       didSet {
+           guard let bgContentY = bgContentY else { return }
+           bgContentView.frame.origin.y = bgContentY
+       }
+    }
+    
+    /// 验证成功 是否有振动声音
+    public var isHaveCerSuccessSound: Bool = true
+    
 }
 
 //MARK: - private
@@ -158,17 +176,23 @@ extension LXSlidingWindowView {
         endSubImgView.addSubview(endSubSubImgView)
         bgImgView.addSubview(updateBtn)
         updateBtn.addSubview(updateImgView)
-        
-        /// 事件监听
-        
+    }
+    
+    /// 时间监听
+    private func setHandle() {
         /// 滑动事件结束时的回调
         slidingView.setEndHandle {  [weak self] (offSet) in
            self?.startSubImgView.frame.origin.x = min((self?.bgImgView.frame.width ?? 0) - LXFit.fitFloat(52), max(0, (self?.originSlidingViewX ?? 0) + offSet))
             guard let rect1 = self?.endSubImgView.frame , let rect2 = self?.startSubImgView.frame else { return false }
             if  rect1.contains(rect2) { /// 包含
-                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1.5) {
+                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.2) {
                     self?.callBack?(true)
                     self?.dismiss()
+                }
+                
+                /// true 则播放振动声音
+                if self?.isHaveCerSuccessSound ?? false {
+                    self?.playSound()
                 }
                 return true
             }else{
@@ -185,22 +209,13 @@ extension LXSlidingWindowView {
         slidingView.setChangeHandle {  [weak self] (offSet) in
             self?.startSubImgView.frame.origin.x = min((self?.bgImgView.frame.width ?? 0) - LXFit.fitFloat(52), max(0, (self?.originSlidingViewX ?? 0) + offSet))
         }
-        
-        /// 设置尺寸
-        setContentFrame()
     }
     
-    /// 设置内容的frame
-    private func setContentFrame() {
+    /// 设置frame
+    private func setAllFrame() {
         
-        bgContentView.frame = CGRect(x: LXFit.fitFloat(25), y: LXFit.fitFloat(287 - 88) + LXSlidingApp.statusbarH, width: UIScreen.main.bounds.width - LXFit.fitFloat(50), height: LXFit.fitFloat(262))
-        closeBtn.frame = CGRect(x: bgContentView.frame.width - LXFit.fitFloat(45), y: LXFit.fitFloat(9), width: LXFit.fitFloat(30), height: LXFit.fitFloat(30))
-        titleLabel.frame = CGRect(x: LXFit.fitFloat(25), y: LXFit.fitFloat(14), width: closeBtn.frame.minX - LXFit.fitFloat(35), height: LXFit.fitFloat(20))
-        bgImgView.frame = CGRect(x: LXFit.fitFloat(25), y: titleLabel.frame.maxY + LXFit.fitFloat(13), width: bgContentView.frame.width - LXFit.fitFloat(50), height: LXFit.fitFloat(139))
-        slidingView.frame = CGRect(x: 0, y: bgImgView.frame.maxY + LXFit.fitFloat(15), width: bgContentView.frame.width, height: LXFit.fitFloat(50))
-        updateBtn.frame = CGRect(x: LXFit.fitFloat(235), y: LXFit.fitFloat(103), width: LXFit.fitFloat(36), height: LXFit.fitFloat(36))
-        updateImgView.frame = CGRect(x: LXFit.fitFloat(10), y: LXFit.fitFloat(10), width: LXFit.fitFloat(16), height: LXFit.fitFloat(16))
-
+         /// 设置内容尺寸
+         setContentFrame()
         
          /// 刷新滑块UI
          updateSlidingUI()
@@ -210,14 +225,26 @@ extension LXSlidingWindowView {
         
     }
     
+    /// 设置内容尺寸
+    private func setContentFrame() {
+        bgContentView.frame = CGRect(x: LXFit.fitFloat(25), y: (bgContentY != nil) ? bgContentY! : (LXFit.fitFloat(287 - 88) + LXSlidingApp.statusbarH), width: UIScreen.main.bounds.width - LXFit.fitFloat(50), height: LXFit.fitFloat(262))
+        closeBtn.frame = CGRect(x: bgContentView.frame.width - LXFit.fitFloat(45), y: LXFit.fitFloat(9), width: LXFit.fitFloat(30), height: LXFit.fitFloat(30))
+        titleLabel.frame = CGRect(x: LXFit.fitFloat(25), y: LXFit.fitFloat(14), width: closeBtn.frame.minX - LXFit.fitFloat(35), height: LXFit.fitFloat(20))
+        bgImgView.frame = CGRect(x: LXFit.fitFloat(25), y: titleLabel.frame.maxY + LXFit.fitFloat(13), width: bgContentView.frame.width - LXFit.fitFloat(50), height: LXFit.fitFloat(139))
+        slidingView.frame = CGRect(x: 0, y: bgImgView.frame.maxY + LXFit.fitFloat(15), width: bgContentView.frame.width, height: LXFit.fitFloat(50))
+        updateBtn.frame = CGRect(x: LXFit.fitFloat(235), y: LXFit.fitFloat(103), width: LXFit.fitFloat(36), height: LXFit.fitFloat(36))
+        updateImgView.frame = CGRect(x: LXFit.fitFloat(10), y: LXFit.fitFloat(10), width: LXFit.fitFloat(16), height: LXFit.fitFloat(16))
+
+    }
+    
     @objc private func updateSlidingUI() {
         let starX = max(0, arc4random_uniform(UInt32(bgImgView.frame.width * 0.5) - UInt32(LXFit.fitFloat(52))))
-        let endX = max(UInt32(bgImgView.frame.width * 0.5), arc4random_uniform(UInt32(bgImgView.frame.width) - UInt32(LXFit.fitFloat(52))))
+        let endX = max(UInt32(bgImgView.frame.width * 0.5), arc4random_uniform(UInt32(bgImgView.frame.width) - UInt32(LXFit.fitFloat(57))))
         let y = max(0, arc4random_uniform(UInt32(LXFit.fitFloat(113) - LXFit.fitFloat(52))))
         startSubImgView.frame = CGRect(x: CGFloat(starX), y:  CGFloat(y), width: LXFit.fitFloat(52), height: LXFit.fitFloat(52))
         originSlidingViewX = startSubImgView.frame.minX
-        endSubImgView.frame = CGRect(x: CGFloat(endX), y:  CGFloat(y) - LXFit.fitFloat(10), width: LXFit.fitFloat(72), height: LXFit.fitFloat(72))
-        endSubSubImgView.frame = CGRect(x: LXFit.fitFloat(10), y:  LXFit.fitFloat(10), width: LXFit.fitFloat(52), height: LXFit.fitFloat(52))
+        endSubImgView.frame = CGRect(x: CGFloat(endX), y:  CGFloat(y) - LXFit.fitFloat(5), width: LXFit.fitFloat(62), height: LXFit.fitFloat(62))
+        endSubSubImgView.frame = CGRect(x: LXFit.fitFloat(5), y:  LXFit.fitFloat(5), width: LXFit.fitFloat(52), height: LXFit.fitFloat(52))
     }
     
      /// 关闭按钮事件监听
@@ -226,6 +253,14 @@ extension LXSlidingWindowView {
         self.dismiss()
      }
     
+    /// 播放音效
+    private func playSound() {
+        let ID = SystemSoundID(kSystemSoundID_Vibrate)
+        AudioServicesPlaySystemSound(ID)
+        AudioServicesPlaySystemSoundWithCompletion(ID, {
+          AudioServicesDisposeSystemSoundID(ID)
+       })
+    }
 }
 
 //MARK: - public
@@ -247,16 +282,16 @@ extension LXSlidingWindowView {
     public func setHandle(_ callBack: LXSlidingWindowViewCallBack?) {
         self.callBack = callBack
     }
-    
+      
 }
 
 //MARK: - LXSlidingApp 常量 结构体
-public struct LXSlidingApp {
+fileprivate struct LXSlidingApp {
 
    //根据高度来判断是否是带刘海的手机,也可以通过safaAreaInserts来判断
-    public static let isIPhoneX = (UIScreen.main.bounds.height == CGFloat(812) || UIScreen.main.bounds.height == CGFloat(896)) ? true : false
+    fileprivate static let isIPhoneX = (UIScreen.main.bounds.height == CGFloat(812) || UIScreen.main.bounds.height == CGFloat(896)) ? true : false
     
     //状态栏高度
-    public static let statusbarH = isIPhoneX ? CGFloat(44.0) : CGFloat(20.0)
+    fileprivate static let statusbarH = isIPhoneX ? CGFloat(44.0) : CGFloat(20.0)
     
 }

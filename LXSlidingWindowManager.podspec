@@ -16,8 +16,8 @@ Pod::Spec.new do |spec|
   #
 
   spec.name         = "LXSlidingWindowManager"
-  spec.version      = "1.1.1"
-  spec.summary      = "LXSlidingWindowManager."
+  spec.version      = "1.2.0"
+  spec.summary      = "LXSlidingWindowManager"
 
   # This description is used to generate tags and improve search results.
   #   * Think: What does it do? Why did you write it? What is the focus?
@@ -25,7 +25,7 @@ Pod::Spec.new do |spec|
   #   * Write the description between the DESC delimiters below.
   #   * Finally, don't worry about the indent, CocoaPods strips it!
   spec.description  = <<-DESC
-  图形滑块 验证
+  图形滑块 滑动验证验证
                    DESC
 
   spec.homepage     = "https://github.com/LIXIANGXLee/LXSlidingWindowModule"

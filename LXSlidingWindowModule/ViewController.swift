@@ -28,9 +28,8 @@ class ViewController: UIViewController {
     
     @objc func buttonClick() {
         let sliderView = LXSlidingWindowView()
-                      
         sliderView.show(self.view)
-
+        sliderView.isHaveCerSuccessSound = true
         sliderView.setHandle { (isFinish) in
             print("==========\(isFinish)")
         }
