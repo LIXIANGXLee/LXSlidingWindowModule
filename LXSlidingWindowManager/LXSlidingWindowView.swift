@@ -158,7 +158,8 @@ public class LXSlidingWindowView: UIView {
     
     /// 验证成功 是否有振动声音
     public var isHaveCerSuccessSound: Bool = true
-    
+    ///验证成功 后的延时时间 默认两秒
+    public var delayDuration: Double = 2
 }
 
 //MARK: - private
@@ -185,7 +186,7 @@ extension LXSlidingWindowView {
            self?.startSubImgView.frame.origin.x = min((self?.bgImgView.frame.width ?? 0) - LXFit.fitFloat(52), max(0, (self?.originSlidingViewX ?? 0) + offSet))
             guard let rect1 = self?.endSubImgView.frame , let rect2 = self?.startSubImgView.frame else { return false }
             if  rect1.contains(rect2) { /// 包含
-                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.2) {
+                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + (self?.delayDuration ?? 2)) {
                     self?.callBack?(true)
                     self?.dismiss()
                 }
